@@ -1,0 +1,47 @@
+[package]
+name = "ms-notify"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+fbc-starter = { path = "../fbc-starter", features = ["nacos", "mysql", "kafka", "consumer"] }
+
+# Web 框架（用于 StatusCode）
+axum.workspace = true
+tokio.workspace = true
+async-trait.workspace = true
+
+sqlx.workspace = true
+sqlxplus = { workspace = true, features = ["mysql"]}
+
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+
+# 邮件发送
+lettre.workspace = true
+
+# HTTP 客户端
+reqwest.workspace = true
+
+# 加密签名（飞书、钉钉、短信）
+hmac.workspace = true
+sha1.workspace = true
+sha2.workspace = true
+base64.workspace = true
+urlencoding.workspace = true
+
+# UUID
+uuid.workspace = true
+
+# 错误处理
+thiserror.workspace = true
+anyhow.workspace = true
+
+# 配置管理
+config.workspace = true
+
+# 日志
+tracing.workspace = true
