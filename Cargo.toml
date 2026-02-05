@@ -6,7 +6,7 @@ authors.workspace = true
 license.workspace = true
 
 [dependencies]
-fbc-starter = { path = "../fbc-starter", features = ["nacos", "mysql", "kafka", "consumer"] }
+fbc-starter = { path = "../fbc-starter", features = ["nacos", "mysql", "consumer"] }
 
 # Web 框架（用于 StatusCode）
 axum.workspace = true

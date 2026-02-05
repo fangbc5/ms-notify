@@ -108,9 +108,10 @@ impl NotifyConfig {
         let base_config = BaseConfig::from_env()?;
 
         // 加载通知相关配置
-        // 使用 APP__NOTIFY__ 前缀的环境变量
+        // 使用 APP__NOTIFY__ 前缀的环境变量，例如：
+        // APP__NOTIFY__EMAIL__SMTP_SERVER、APP__NOTIFY__EMAIL__SMTP_USER 等
         let notify_config = config::Config::builder()
-            .add_source(config::Environment::with_prefix("APP").separator("__"))
+            .add_source(config::Environment::with_prefix("APP__NOTIFY").separator("__"))
             .build()?
             .try_deserialize::<NotifyServiceConfig>()?;
 

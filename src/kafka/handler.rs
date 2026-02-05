@@ -121,14 +121,14 @@ impl KafkaMessageHandler for NotificationHandler {
     /// 框架会自动调用此方法来获取需要订阅的 topics
     fn topics(&self) -> Vec<String> {
         // 从环境变量获取，或使用默认值
-        vec!["flare-messages".to_string()]
+        vec!["ms-notify-topic".to_string()]
     }
 
     /// 返回此 handler 使用的消费者组ID
     /// 框架会自动调用此方法来创建对应的消费者组
     fn group_id(&self) -> String {
         // 从环境变量获取，或使用默认值
-        "flare-workers".to_string()
+        "ms-notify-group-1".to_string()
     }
 
     /// 处理接收到的消息（由 fbc-starter 自动调用）
