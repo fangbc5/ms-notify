@@ -69,7 +69,14 @@ ENTRYPOINT ["/app/{service}"]
 
 ### 标准模板
 
+所有微服务的 `docker-compose.yml` **必须**使用 `env_file` 引用外部环境变量文件 `.env.docker`，
+**禁止**在 `docker-compose.yml` 中内联 `environment:` 配置项。
+
 ```yaml
+# {service} 一键部署（仅服务本身）
+# 使用方式（在 {service} 目录下）:
+#   docker compose up -d --build
+
 services:
   {service}:
     build:
@@ -79,19 +86,8 @@ services:
     container_name: {service}
     ports:
       - "{port}:{port}"
-    environment:
-      # ===== 服务器配置 =====
-      APP__SERVER__ADDR: "0.0.0.0"
-      APP__SERVER__PORT: "{port}"
-      # ===== 日志配置 =====
-      APP__LOG__LEVEL: "info"
-      # ===== Nacos =====
-      APP__NACOS__SERVER_ADDRS: "host.docker.internal:8848"
-      APP__NACOS__SERVICE_NAME: "{service}"
-      APP__NACOS__NAMESPACE: "{namespace-id}"
-      # ... 其他业务配置
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    env_file:
+      - .env.docker
     restart: unless-stopped
     networks:
       - fbc-network
@@ -101,14 +97,41 @@ networks:
     external: true
 ```
 
+### `.env.docker` 文件规范
+
+| 文件 | 是否提交 Git | 说明 |
+|------|:---:|------|
+| `.env.docker` | ❌ 禁止 | 包含真实密钥和连接信息，**必须**在 `.gitignore` 中排除 |
+| `.env.example` | ✅ 必须 | 模板文件，使用占位符替代敏感值，供新开发者参考（开发和 Docker 部署共用） |
+
+`.env.docker` 标准内容（所有微服务必须包含以下基础配置）:
+
+```env
+# ===== 服务器配置 =====
+APP__SERVER__ADDR=0.0.0.0
+APP__SERVER__PORT={port}
+
+# ===== 日志配置 =====
+APP__LOG__LEVEL=info
+
+# ===== Nacos =====
+APP__NACOS__SERVER_ADDRS=host.docker.internal:8848
+APP__NACOS__SERVICE_NAME={service}
+APP__NACOS__NAMESPACE={namespace-id}
+
+# ... 其他业务配置（数据库、Redis、Kafka 等）
+```
+
 ### 关键规则
 
 | 规则 | 说明 |
 |------|------|
-| `APP__SERVER__ADDR` | **必须设置** `"0.0.0.0"`，否则服务仅监听 `127.0.0.1`，Nacos 注册失败 |
-| Healthcheck | **不配置**（Nacos 通过 gRPC 心跳管理健康状态，与 Docker healthcheck 独立） |
-| `extra_hosts` | Linux 部署时需要，macOS Docker Desktop 自动解析 |
+| 配置方式 | **必须** `env_file: .env.docker`，**禁止** 内联 `environment:` |
+| `APP__SERVER__ADDR` | **必须设置** `0.0.0.0`，否则服务仅监听 `127.0.0.1`，Nacos 注册失败 |
+| `APP__NACOS__NAMESPACE` | **必须设置**，否则注册到 `public` 命名空间 |
+| Healthcheck | **不配置**（Nacos 通过 gRPC 心跳管理健康状态） |
 | 网络 | 使用外部 `fbc-network`，所有服务共享同一网络 |
+| `.gitignore` | **必须**包含 `.env.docker` 条目 |
 
 ---
 
@@ -201,9 +224,14 @@ docker push registry.example.com/{service}:${VERSION}
 | 环境 | 配置方式 | 说明 |
 |------|----------|------|
 | 开发 | `.env` 文件 | 本地开发，`cargo run` |
-| 容器 | `docker-compose.yml` `environment` | Docker 部署，覆盖默认值 |
+| 容器 | `.env.docker` 文件 | Docker 部署，通过 `env_file` 加载 |
 | 生产 | 环境变量 / Nacos 配置中心 | K8s ConfigMap / Nacos |
 
-- `.env.example` **必须提交**到 Git（模板，不含真实值）
-- `.env` **禁止提交**到 Git（包含真实密钥）
+| 文件 | Git | 说明 |
+|------|:---:|------|
+| `.env.example` | ✅ 提交 | 环境配置模板（不含真实值，开发和 Docker 共用） |
+| `.env` | ❌ 忽略 | 本地开发真实配置 |
+| `.env.docker` | ❌ 忽略 | Docker 部署真实配置 |
+
 - 生产环境通过 Nacos 或 K8s 注入配置，不使用 `.env` 文件
+
