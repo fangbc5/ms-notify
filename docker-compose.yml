@@ -1,0 +1,24 @@
+# ms-notify 一键部署（仅服务本身）
+# Kafka / Nacos 请复用 fbc-starter/docker 中的服务。
+#
+# 使用方式（在 ms-notify 目录下）:
+#   docker compose up -d --build
+
+services:
+  ms-notify:
+    build:
+      context: ..
+      dockerfile: ms-notify/Dockerfile
+    image: ms-notify:latest
+    container_name: ms-notify
+    ports:
+      - "30104:30104"
+    env_file:
+      - .env.docker
+    restart: unless-stopped
+    networks:
+      - fbc-network
+
+networks:
+  fbc-network:
+    external: true

@@ -54,22 +54,22 @@ impl From<NotifyError> for BaseAppError {
         use error_code::*;
         match err {
             NotifyError::Smtp(e) => {
-                BaseAppError::BizError(SMTP_ERROR as i32, format!("SMTP 错误: {}", e))
+                BaseAppError::biz_error(SMTP_ERROR as i32, format!("SMTP 错误: {}", e))
             }
             NotifyError::EmailAddress(e) => {
-                BaseAppError::BizError(EMAIL_ADDRESS_ERROR as i32, format!("邮件地址错误: {}", e))
+                BaseAppError::biz_error(EMAIL_ADDRESS_ERROR as i32, format!("邮件地址错误: {}", e))
             }
             NotifyError::EmailBuild(e) => {
-                BaseAppError::BizError(EMAIL_BUILD_ERROR as i32, format!("邮件构建错误: {}", e))
+                BaseAppError::biz_error(EMAIL_BUILD_ERROR as i32, format!("邮件构建错误: {}", e))
             }
             NotifyError::Http(e) => {
-                BaseAppError::BizError(HTTP_ERROR, format!("HTTP 请求错误: {}", e))
+                BaseAppError::biz_error(HTTP_ERROR, format!("HTTP 请求错误: {}", e))
             }
             NotifyError::Config(msg) => {
-                BaseAppError::BizError(NOTIFY_CONFIG_ERROR, format!("通知配置错误: {}", msg))
+                BaseAppError::biz_error(NOTIFY_CONFIG_ERROR, format!("通知配置错误: {}", msg))
             }
             NotifyError::Send(msg) => {
-                BaseAppError::BizError(NOTIFY_SEND_ERROR, format!("通知发送失败: {}", msg))
+                BaseAppError::biz_error(NOTIFY_SEND_ERROR, format!("通知发送失败: {}", msg))
             }
         }
     }
